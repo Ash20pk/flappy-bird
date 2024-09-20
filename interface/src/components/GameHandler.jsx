@@ -1,24 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import { ethers } from 'ethers';
 import FlappyBirdGame from '../game/FlappyBirdGame';
 import BirdGameABI from '../contracts/BirdGame.json';
 
 function GameHandler({ userAddress }) {
-  const gameRef = useRef(null);
-  const [game, setGame] = useState(null);
-
-  useEffect(() => {
-    const newGame = new FlappyBirdGame(gameRef.current, handleGameOver);
-    setGame(newGame);
-
-    return () => {
-      if (newGame) {
-        newGame.destroy();
-      }
-    };
-  }, []);
-
-  const handleGameOver = async (finalScore) => {
+  const handleGameOver = useCallback(async (finalScore) => {
     try {
       await submitScore(finalScore);
       console.log(`Game Over! Score: ${finalScore} submitted successfully!`);
@@ -26,7 +12,7 @@ function GameHandler({ userAddress }) {
       console.error("Error submitting score:", error);
       alert("Failed to submit score. Please try again.");
     }
-  };
+  }, [userAddress]);
 
   const submitScore = async (finalScore) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -58,7 +44,7 @@ function GameHandler({ userAddress }) {
     await contract.submitScore(userAddress, finalScore, signature);
   };
 
-  return <div ref={gameRef} />;
+  return <FlappyBirdGame onGameOver={handleGameOver} />;
 }
 
 export default GameHandler;
