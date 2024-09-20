@@ -3,19 +3,14 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Game from './components/GameHandler';
-import NavBar from './components/NavBar';
 import { PlayerContext } from './hooks/PlayerContext';
 
 
 function App() {
-  const { playerAddress, connectWallet, disconnectWallet, isConnected} = useContext(PlayerContext);
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [userAddress, setUserAddress] = useState('');
+  const { playerAddress, isConnected} = useContext(PlayerContext);
 
   return (
     <Router>
-      <div className="">
-        <NavBar />
       <Routes>
         <Route 
           path="/" 
@@ -23,14 +18,13 @@ function App() {
         />
         <Route 
           path="/dashboard" 
-          element={isConnected ? <Dashboard userAddress={userAddress} /> : <Navigate to="/" />} 
+          element={isConnected ? <Dashboard userAddress={playerAddress} /> : <Navigate to="/" />} 
         />
         <Route 
           path="/game" 
-          element={isConnected ? <Game userAddress={userAddress} /> : <Navigate to="/" />} 
+          element={isConnected ? <Game userAddress={playerAddress} /> : <Navigate to="/" />} 
         />
       </Routes>
-      </div>
     </Router>
   );
 }
