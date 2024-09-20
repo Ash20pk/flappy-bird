@@ -1,3 +1,29 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+@keyframes moveGround {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  .animate-move-ground {
+    animation: moveGround 15s linear infinite;
+  }
+  
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+    50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce-slow 2s infinite;
+  }
+  
+  .shadow-text {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .flappy-font {
+    font-family: 'FlappyFont', sans-serif; 
+  }
