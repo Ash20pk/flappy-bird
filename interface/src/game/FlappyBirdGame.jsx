@@ -255,7 +255,8 @@ const FlappyBirdGame = ({ onGameOver }) => {
 
         //this is the distance from birds start to the first pipe
         const pipeHorizontalDistance = 300;
-        const pipeVerticalGap = 150; // Vertical gap between pipes
+
+        const pipeVerticalGap = 150; 
 
         //generate random number between -200 and height - 320 - pipeVerticalGap
         const pipeTopY = Phaser.Math.Between(-200, height - 520 - pipeVerticalGap)
@@ -268,6 +269,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         const pipeTop = pipesGroup.create(pipeHorizontalDistance, pipeTopY, currentPipe.top)
         pipeTop.body.allowGravity = false
 
+        // 720 is the height of the elongate pipes
         const pipeBottom = pipesGroup.create(pipeHorizontalDistance, pipeTopY + 720 + pipeVerticalGap, currentPipe.bottom)
         pipeBottom.body.allowGravity = false
     }
@@ -343,6 +345,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
     }
 
     function prepareGame(scene) {
+        const { width, height } = scene.sys.game.config;
         framesMoveUp = 0
         nextPipes = 0
         currentPipe = assets.obstacle.pipe.green
@@ -353,7 +356,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         messageInitial.visible = true
     
         birdName = getRandomBird()
-        player = scene.physics.add.sprite(60, 265, birdName)
+        player = scene.physics.add.sprite(width / 2.5, height/2.3, birdName)
         player.setCollideWorldBounds(true)
         player.anims.play(getAnimationBird(birdName).clapWings, true)
         player.body.allowGravity = false
