@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import BirdGameABI from '../contracts/BirdGame.json';
 import { ApolloClient, InMemoryCache, gql, useQuery } from '@apollo/client';
 import {GET_PLAYER} from '../queries/queries';
+import { ensureArbitrumSepoliaNetwork } from '../utils/networkUtils';
 
 export const PlayerContext = createContext();
 
@@ -24,22 +25,22 @@ export const PlayerProvider = ({ children }) => {
   const contractAddress = process.env.VITE_GAME_CONTRACT;
 
   const connectWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const signer = await provider.getSigner();
-        setPlayerAddress(await signer.getAddress());
-        setIsConnected(true);
-        setProvider(provider);
-        setSigner(signer);
-        await fetchPlayerStats(await signer.getAddress());
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-        throw error;
-      }
-    } else {
-      throw new Error("Ethereum provider not found");
+    try {
+
+      // Ensure the user is on the correct network
+      await ensureArbitrumSepoliaNetwork();
+      
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const signer = await provider.getSigner();
+      setPlayerAddress(await signer.getAddress());
+      setIsConnected(true);
+      setProvider(provider);
+      setSigner(signer);
+      await fetchPlayerStats(await signer.getAddress());
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      throw error;
     }
   };
 
