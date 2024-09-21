@@ -1200,6 +1200,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "address",
+        "name": "playerAddress",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_score",
         "type": "uint256"

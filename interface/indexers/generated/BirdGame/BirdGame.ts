@@ -1861,12 +1861,16 @@ export class SubmitScoreCall__Inputs {
     return this._call.inputValues[1].value.toBigInt();
   }
 
+  get playerAddress(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+
   get _score(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+    return this._call.inputValues[3].value.toBigInt();
   }
 
   get _signature(): Bytes {
-    return this._call.inputValues[3].value.toBytes();
+    return this._call.inputValues[4].value.toBytes();
   }
 }
 

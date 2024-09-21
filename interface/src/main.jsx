@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <DynamicContextProvider
       settings={{
-        environmentId: "81b1d717-7e64-4ede-b223-03084ae843d5",
+        environmentId: "d00e12c8-5c4b-489a-bec7-7c778119aa97",
         walletConnectors: [EthereumWalletConnectors],
       }}
     >

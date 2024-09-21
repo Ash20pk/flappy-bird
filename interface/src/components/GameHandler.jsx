@@ -1,11 +1,18 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { ethers } from 'ethers';
 import FlappyBirdGame from '../game/FlappyBirdGame';
 import BirdGameABI from '../contracts/BirdGame.json';
 import { PlayerContext } from '../hooks/PlayerContext';
 
 function GameHandler() {
-  const { signer, contractAddress, playerStats } = useContext(PlayerContext);
+  const { contractAddress, playerStats, playerAddress } = useContext(PlayerContext);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const privateKey = process.env.VITE_PRIVATE_KEY;
+  const wallet = new ethers.Wallet(privateKey);
+  const signer = wallet.connect(provider);
+  const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
+
 
   const handleGameOver = useCallback(async (finalScore) => {
     try {
@@ -23,24 +30,64 @@ function GameHandler() {
       return;
     }
 
-    const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
-    const birdId = playerStats.ownedBirds[0]; 
-    const gameId = await contract.currentGameId();
+    try {
+      setIsSubmitting(true);
+      const birdId = playerStats.ownedBirds[0];
+      const gameId = await contract.currentGameId();
+      const chainId = await signer.getChainId();
+  
 
-    // Create the message hash
-    const messageHash = ethers.utils.solidityKeccak256(
-      ['uint256', 'uint256', 'uint256'],
-      [birdId, gameId, finalScore]
-    );
+      // Prepare the data for signing
+      const domain = {
+        name: "BirdGame",
+        version: "1",
+        chainId: chainId,
+        verifyingContract: contractAddress
+      };
 
-    // Sign the message hash
-    const signature = await signer.signMessage(ethers.utils.arrayify(messageHash));
+      const types = {
+        SubmitScore: [
+          { name: "birdId", type: "uint256" },
+          { name: "gameId", type: "uint256" },
+          {name: "playerAddress", type: "address"},
+          { name: "score", type: "uint256" }
+        ]
+      };
 
-    // Submit the score
-    await contract.submitScore(birdId, gameId, finalScore, signature);
+      const value = {
+        birdId: birdId.toString(),
+        gameId: gameId.toString(),
+        playerAddress: playerAddress.toString(),
+        score: finalScore.toString()
+      };
+
+      console.log("Value object:", value);
+
+      // Sign the typed data
+      const signature = await signer.signTypedData(domain, types, value);
+      const { v, r, s } = ethers.utils.splitSignature(signature);
+
+      // Submit the score
+      const tx = await contract.submitScore(
+        birdId.toString(),
+        gameId.toString(),
+        playerAddress.toString(),
+        finalScore.toString(),
+        v,
+        r,
+        s
+      );
+      await tx.wait();
+
+    } catch (error) {
+      console.error("Error in submitScore:", error);
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  return <FlappyBirdGame onGameOver={handleGameOver} />;
+  return <FlappyBirdGame onGameOver={handleGameOver} isSubmitting={isSubmitting} />;
 }
 
 export default GameHandler;

@@ -1,8 +1,8 @@
 {
   "arbitrum-sepolia": {
     "BirdGame": {
-      "address": "0x56979559a754298832776ABe8a92050dDBE36325",
-      "startBlock": 82780198
+      "address": "0xeF3c6bF26FE01efadFa1Bb345eCF084B87125f0F",
+      "startBlock": 82907782
     }
   }
 }

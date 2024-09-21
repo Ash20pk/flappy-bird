@@ -48,6 +48,41 @@ export const PlayerProvider = ({ children }) => {
       }
   };
 
+  const checkForRegistrationEvent = async (playerAddress, startBlock) => {
+    const POLL_INTERVAL = 2000; // 2 seconds
+    const MAX_RETRIES = 30; // 1 minute total polling time
+
+    const query = gql`
+      query GetPlayerRegisteredEvent($playerAddress: Bytes!, $startBlock: BigInt!) {
+        playerRegisteredEvents(
+          where: { playerAddress: $playerAddress, blockNumber_gte: $startBlock }
+          first: 1
+        ) {
+          id
+          playerAddress
+          name
+          blockNumber
+        }
+      }
+    `;
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      const response = await client.query({
+        query,
+        variables: { playerAddress: playerAddress.toLowerCase(), startBlock },
+        fetchPolicy: 'network-only', // Bypass cache to get fresh data
+      });
+
+      if (response.data.playerRegisteredEvents.length > 0) {
+        return true;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL));
+    }
+
+    return false;
+  };
+
   const register = async (name) => {
     if (!signer) {
       throw new Error("Wallet not connected");
@@ -55,9 +90,24 @@ export const PlayerProvider = ({ children }) => {
     try {
       setLoading(true);
       const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
+      
+      // Get the current block number
+      const currentBlock = await provider.getBlockNumber();
+
+      // Send the registration transaction
       const tx = await contract.registerPlayer(name);
       await tx.wait();
-      fetchPlayerStats(playerAddress);
+
+      // Check for the registration event
+      const registrationConfirmed = await checkForRegistrationEvent(playerAddress, currentBlock);
+
+      if (registrationConfirmed) {
+        // Fetch player stats after confirmation
+        await fetchPlayerStats(playerAddress);
+      } else {
+        console.error("Registration event not found after waiting");
+        throw new Error("Registration not confirmed");
+      }
     } catch (error) {
       console.error("Failed to register player:", error);
       setLoading(false);
