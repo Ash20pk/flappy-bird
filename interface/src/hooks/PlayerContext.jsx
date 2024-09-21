@@ -1,8 +1,16 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import BirdGameABI from '../contracts/BirdGame.json';
+import { ApolloClient, InMemoryCache, gql, useQuery } from '@apollo/client';
+import {GET_PLAYER} from '../queries/queries';
 
 export const PlayerContext = createContext();
+
+// Create an Apollo Client instance
+const client = new ApolloClient({
+  uri: process.env.VITE_SUBGRAPH_URL,
+  cache: new InMemoryCache(),
+});
 
 export const PlayerProvider = ({ children }) => {
   const [playerAddress, setPlayerAddress] = useState('');
@@ -25,7 +33,7 @@ export const PlayerProvider = ({ children }) => {
         setIsConnected(true);
         setProvider(provider);
         setSigner(signer);
-        await fetchPlayerStats();
+        await fetchPlayerStats(await signer.getAddress());
       } catch (error) {
         console.error("Failed to connect wallet:", error);
         throw error;
@@ -62,30 +70,35 @@ export const PlayerProvider = ({ children }) => {
     setPlayerStats(null);
   };
 
-  const fetchPlayerStats = async () => {
-    if (!playerAddress || !isConnected || !signer) {
+  const fetchPlayerStats = async (address) => {
+    if (!address) {
       return;
     }
     try {
-      const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
-      const stats = await contract.getPlayerStats(playerAddress);
-      setIsRegistered(stats[4])
-      console.log(stats[4]);
-      if (stats && stats.length >= 3) {
+      setLoading(true);
+      const { data } = await client.query({
+        query: GET_PLAYER,
+        variables: { id: address.toLowerCase() },
+      });
+      
+      if (data && data.player) {
         setPlayerStats({
-          name: stats[0],
-          highScore: stats[1].toString(),
-          xp: stats[2].toString(),
-          level: stats[3].toString(),
-          isRegistered: stats[4]
+          name: data.player.name,
+          highScore: data.player.highScore,
+          xp: data.player.xp,
+          level: data.player.level,
+          ownedBirds: data.player.ownedBirds,
         });
+        setIsRegistered(true);
       } else {
-        console.warn("Unexpected player stats format:", stats);
+        console.warn("Player not found in subgraph");
         setPlayerStats(null);
+        setIsRegistered(false);
       }
     } catch (error) {
-      console.error("Error fetching player stats:", error);
+      console.error("Error fetching player stats from subgraph:", error);
       setPlayerStats(null);
+      setIsRegistered(false);
     } finally {
       setLoading(false);
     }
@@ -94,7 +107,7 @@ export const PlayerProvider = ({ children }) => {
   useEffect(() => {
     const init = async () => {
       if (playerAddress) {
-        await fetchPlayerStats();
+        await fetchPlayerStats(playerAddress);
         console.log(isRegistered);
       } else {
         setLoading(false);
