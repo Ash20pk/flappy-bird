@@ -2,7 +2,7 @@ specVersion: 1.0.0
 indexerHints:
   prune: auto
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: BirdGame
@@ -26,7 +26,7 @@ dataSources:
         - GameHistory
       abis:
         - name: BirdGame
-          file: ./abis/BirdGame.json
+          file: BirdGame/abis/BirdGame.json
       eventHandlers:
         - event: BirdMinted(indexed address,indexed uint256,uint256)
           handler: handleBirdMinted
@@ -36,4 +36,4 @@ dataSources:
           handler: handleLevelUp
         - event: PlayerRegistered(indexed address,string)
           handler: handlePlayerRegistered
-      file: ./src/bird-game.ts
+      file: BirdGame/BirdGame.wasm
