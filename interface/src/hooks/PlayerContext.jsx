@@ -58,6 +58,24 @@ export const PlayerProvider = ({ children }) => {
     }
   };
 
+  const register = async (name) => {
+    if (!signer) {
+      throw new Error("Wallet not connected");
+    }
+    try {
+      setLoading(true);
+      const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
+      const tx = await contract.registerPlayer(name);
+      await tx.wait();
+      await fetchPlayerStats(await signer.getAddress());
+    } catch (error) {
+      console.error("Failed to register player:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const fetchPlayerStats = async (address) => {
     if (!address) {
       return;
@@ -91,24 +109,6 @@ export const PlayerProvider = ({ children }) => {
       console.error("Error fetching player stats from subgraph:", error);
       setPlayerStats(null);
       setIsRegistered(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (name) => {
-    if (!signer) {
-      throw new Error("Wallet not connected");
-    }
-    try {
-      setLoading(true);
-      const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
-      const tx = await contract.registerPlayer(name);
-      await tx.wait();
-      await fetchPlayerStats(await signer.getAddress());
-    } catch (error) {
-      console.error("Failed to register player:", error);
-      throw error;
     } finally {
       setLoading(false);
     }
