@@ -254,7 +254,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         const { width, height } = scene.sys.game.config;
 
         //this is the distance from birds start to the first pipe
-        const pipeHorizontalDistance = 300;
+        const pipeHorizontalDistance = width/2 + 150;
 
         const pipeVerticalGap = 150; 
 
