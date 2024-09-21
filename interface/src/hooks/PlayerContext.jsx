@@ -25,6 +25,7 @@ export const PlayerProvider = ({ children }) => {
         setIsConnected(true);
         setProvider(provider);
         setSigner(signer);
+        await fetchPlayerStats();
       } catch (error) {
         console.error("Failed to connect wallet:", error);
         throw error;
@@ -39,12 +40,16 @@ export const PlayerProvider = ({ children }) => {
       throw new Error("Wallet not connected");
     }
     try {
+      setLoading(true);
       const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
       const tx = await contract.registerPlayer(name);
       await tx.wait();
     } catch (error) {
       console.error("Failed to register player:", error);
+      setLoading(false);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 

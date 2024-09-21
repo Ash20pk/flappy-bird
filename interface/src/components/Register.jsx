@@ -5,7 +5,7 @@ import flappyBgImage from '../assets/background-day-landscape.png';
 import flappyGroundImage from '../assets/ground-sprite.png'; 
 
 function Register() {
-  const { connectWallet, isConnected, playerAddress, register, disconnectWallet, isRegistered } = useContext(PlayerContext);
+  const { connectWallet, isConnected, loading, register, disconnectWallet, isRegistered } = useContext(PlayerContext);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState('');
@@ -15,7 +15,7 @@ function Register() {
     if (isRegistered) {
       navigate('/dashboard');
     }
-  }, [isRegistered, navigate]);
+  }, [isRegistered, isConnected]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
@@ -97,7 +97,7 @@ function Register() {
                   type="submit"
                   className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 >
-                  Register
+                  {loading? 'Registering....' : 'Register'}
                 </button>
               </div>
             </form>

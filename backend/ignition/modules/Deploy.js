@@ -1,4 +1,5 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+const fs = require("fs");
 
 const BirdGameModule = buildModule("BirdGameModule", (m) => {
   const vrfCoordinatorV2Address = "0x5CE8D5A2BC84beb22a398CCA51996F7930313D61";
@@ -7,6 +8,7 @@ const BirdGameModule = buildModule("BirdGameModule", (m) => {
   const callbackGasLimit = 2500000;
   const baseURI = "https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmUQN1rrhP2gmNgdnNxppTmCW6zjDTPkt9oaaAhQS6kkbw/";
 
+
   const birdGame = m.contract("BirdGame", [
     vrfCoordinatorV2Address,
     subscriptionId,
@@ -14,6 +16,11 @@ const BirdGameModule = buildModule("BirdGameModule", (m) => {
     callbackGasLimit,
     baseURI,
   ]);
+
+  const argumentsArray = [vrfCoordinatorV2Address, subscriptionId, keyHash, callbackGasLimit, baseURI ]
+  const content = "module.exports = " + JSON.stringify(argumentsArray, null, 2) + ";";
+  fs.writeFileSync("./arguments.js", content);
+  console.log("arguments.js file generated successfully.");
 
   return { birdGame };
 });

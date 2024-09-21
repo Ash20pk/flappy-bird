@@ -4,8 +4,10 @@ pragma solidity ^0.8.0;
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract BirdGame is ERC721URIStorage, VRFConsumerBaseV2Plus {
+contract BirdGame is ERC721, ERC721URIStorage, ERC721Enumerable, VRFConsumerBaseV2Plus {
     uint256 private _tokenIdCounter;
     uint256 public _gameIdCounter;
     uint256 public _gameHistoryCounter;
@@ -343,7 +345,8 @@ contract BirdGame is ERC721URIStorage, VRFConsumerBaseV2Plus {
         return playerHistories;
     }
 
-    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+    //Function Overrides
+    function _update(address to, uint256 tokenId, address auth) internal virtual override(ERC721, ERC721Enumerable) returns (address) {
         address from = super._update(to, tokenId, auth);
 
         // Handle removal from 'from' player's ownedBirds (if it's not a mint)
@@ -364,5 +367,31 @@ contract BirdGame is ERC721URIStorage, VRFConsumerBaseV2Plus {
         }
 
         return from;
+    }
+
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._increaseBalance(account, value);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, uint256ToString(tokenId), ".json")) : "";
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable, ERC721URIStorage)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

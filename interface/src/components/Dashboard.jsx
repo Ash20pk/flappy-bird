@@ -34,7 +34,7 @@ const Dashboard = () => {
       <div className="absolute top-4 right-4 flex items-center space-x-2 z-20">
         {playerAddress && (
           <div className="text-sm text-black flappy-font bg-white px-2 py-1 rounded shadow-md">
-            <span className="font-bold">Address:</span> {playerAddress.slice(0, 6)}...{playerAddress.slice(-4)}
+            <span className="font-bold">Address:</span> { playerAddress.slice(0, 6)}...{playerAddress.slice(-4)}
           </div>
         )}
         {isConnected ? 
