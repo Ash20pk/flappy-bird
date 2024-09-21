@@ -3,34 +3,35 @@ import { PlayerContext } from '../hooks/PlayerContext';
 import { useNavigate } from 'react-router-dom';
 import flappyBgImage from '../assets/background-day-landscape.png'; 
 import flappyGroundImage from '../assets/ground-sprite.png'; 
+import {
+  DynamicWidget,
+  useDynamicContext
+} from "@dynamic-labs/sdk-react-core";
 
 function Register() {
-  const { connectWallet, isConnected, loading, register, disconnectWallet, isRegistered } = useContext(PlayerContext);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { register, isRegistered, isConnected, playerAddress, loading, fetchPlayerStats, showRegistrationForm } = useContext(PlayerContext);
   const [name, setName] = useState('');
   const navigate = useNavigate();
+  const { setShowAuthFlow, handleLogOut } = useDynamicContext();
 
   useEffect(() => {
-    if (isRegistered) {
-      navigate('/dashboard');
-    }
-  }, [isRegistered, isConnected]);
-
-  const handleConnect = async () => {
-    setIsConnecting(true);
-    try {
-      await connectWallet();
-      if (!isRegistered){
-      setIsModalOpen(true);
+    const checkUserStatus = async () => {
+      if (isConnected && playerAddress) {
+        try {
+          await fetchPlayerStats(playerAddress);
+          if (isRegistered) {
+            navigate('/dashboard');
+          }
+        } catch (error) {
+          console.error("Error fetching player stats:", error);
+        }
       }
-    } catch (error) {
-      console.error("Error connecting wallet:", error);
-      alert("Failed to connect wallet. Please try again.");
-      disconnectWallet();
-    }
-    setIsConnecting(false);
-  };
+    };
+
+    checkUserStatus();
+  }, [isRegistered]);
+
+  console.log(isConnected,showRegistrationForm);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -40,7 +41,6 @@ function Register() {
     }
     try {
       await register(name);
-      setIsModalOpen(false);
       navigate('/dashboard');
     } catch (error) {
       console.error("Error registering:", error);
@@ -49,34 +49,38 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <div className="absolute top-0 right-0 m-4 z-20">
+      {!isConnected ?
+        (<button className='bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 flappy-font text-l shadow-lg disabled:opacity-50' onClick={() => setShowAuthFlow(true)}>
+          Connect Wallet
+        </button>) 
+        : (<button className='bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 flappy-font text-l shadow-lg disabled:opacity-50' onClick={() => handleLogOut()}>
+          Disconnect Wallet
+      </button>)}
+      </div>
+      
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${flappyBgImage})` }}
-      ></div>
+      />
       
       <div className="absolute bottom-0 left-0 w-full h-24 overflow-hidden">
         <div className="absolute bottom-0 left-0 w-[200%] h-full bg-repeat-x animate-move-ground"
-             style={{ backgroundImage: `url(${flappyGroundImage})` }}>
-        </div>
+             style={{ backgroundImage: `url(${flappyGroundImage})` }}
+        />
       </div>
       
-      <div className="bg-yellow-300 p-8 rounded-xl shadow-lg text-center relative z-10">
-        <h1 className="text-4xl font-bold mb-6 text-white flappy-font shadow-text">Welcome to Flappy Bird Game</h1>
-        <button 
-          onClick={handleConnect} 
-          disabled={isConnecting}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 flappy-font text-xl shadow-lg disabled:opacity-50"
-        >
-          {isConnecting ? 'Connecting...' : 'Connect Wallet to Register'}
-        </button>
-      </div>
+      <div className="flex-grow flex items-center justify-center">
+        <div className="bg-yellow-300 p-8 rounded-xl shadow-lg text-center relative z-10">
+          <h1 className="text-4xl font-bold mb-6 text-white flappy-font shadow-text">Welcome to Flappy Bird Game</h1>
+          
+          {!isConnected && (
+            <p className="text-xl text-white flappy-font shadow-text">Connect your wallet to continue</p>
+          )}
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl">
-            <h2 className="text-2xl font-bold mb-4">Enter Your Name</h2>
-            <form onSubmit={handleRegister}>
+          {isConnected && showRegistrationForm && (
+            <form onSubmit={handleRegister} className="mt-4">
               <input
                 type="text"
                 value={name}
@@ -85,25 +89,17 @@ function Register() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                 required
               />
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="mr-2 px-4 py-2 text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                >
-                  {loading? 'Registering....' : 'Register'}
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 flappy-font text-xl shadow-lg disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? 'Registering...' : 'Register'}
+              </button>
             </form>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

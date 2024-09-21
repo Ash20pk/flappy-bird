@@ -5,9 +5,24 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
-  plugins: [react()],
-  define: {
-    'process.env': env,
-  },
-};
+    plugins: [react()],
+    define: {
+      'process.env': env,
+    },
+    build: {
+      target: ["esnext"], 
+    },
+    optimizeDeps: { 
+      esbuildOptions: {
+        target: "esnext", 
+        // Node.js global to browser globalThis
+        define: {
+          global: 'globalThis'
+        },
+        supported: { 
+          bigint: true 
+        },
+      }
+    }
+  };
 })

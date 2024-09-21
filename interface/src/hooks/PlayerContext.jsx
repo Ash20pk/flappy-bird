@@ -3,6 +3,8 @@ import { ethers } from 'ethers';
 import BirdGameABI from '../contracts/BirdGame.json';
 import { ApolloClient, InMemoryCache, gql, useQuery } from '@apollo/client';
 import {GET_PLAYER} from '../queries/queries';
+import { getWeb3Provider,getSigner, } from '@dynamic-labs/ethers-v6'
+import { useDynamicContext, useIsLoggedIn } from '@dynamic-labs/sdk-react-core'
 
 export const PlayerContext = createContext();
 
@@ -20,27 +22,29 @@ export const PlayerProvider = ({ children }) => {
   const [signer, setSigner] = useState(null);
   const [provider, setProvider] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
+  const { primaryWallet } = useDynamicContext()
+  const isLoggedIn = useIsLoggedIn();
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+
+
 
   const contractAddress = process.env.VITE_GAME_CONTRACT;
 
+
   const connectWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const signer = await provider.getSigner();
-        setPlayerAddress(await signer.getAddress());
-        setIsConnected(true);
+        console.log(primaryWallet)
+        const provider = await getWeb3Provider(primaryWallet);
+        const signer = await getSigner(primaryWallet);
+        console.log(provider,signer);
         setProvider(provider);
         setSigner(signer);
-        await fetchPlayerStats(await signer.getAddress());
+        setIsConnected(true);
+        setPlayerAddress(primaryWallet.address)
       } catch (error) {
         console.error("Failed to connect wallet:", error);
         throw error;
       }
-    } else {
-      throw new Error("Ethereum provider not found");
-    }
   };
 
   const register = async (name) => {
@@ -68,6 +72,7 @@ export const PlayerProvider = ({ children }) => {
     setProvider(null);
     setIsRegistered(false);
     setPlayerStats(null);
+    setShowRegistrationForm(false);
   };
 
   const fetchPlayerStats = async (address) => {
@@ -94,15 +99,18 @@ export const PlayerProvider = ({ children }) => {
           tokenOfOwnerByIndex: data.player.tokenOfOwnerByIndex,
         });
         setIsRegistered(true);
+        setShowRegistrationForm(false);
       } else {
         console.warn("Player not found in subgraph");
         setPlayerStats(null);
         setIsRegistered(false);
+        setShowRegistrationForm(true);
       }
     } catch (error) {
       console.error("Error fetching player stats from subgraph:", error);
       setPlayerStats(null);
       setIsRegistered(false);
+      setShowRegistrationForm(true);
     } finally {
       setLoading(false);
     }
@@ -110,16 +118,14 @@ export const PlayerProvider = ({ children }) => {
 
   useEffect(() => {
     const init = async () => {
-      if (playerAddress) {
-        await fetchPlayerStats(playerAddress);
-        console.log(isRegistered);
-      } else {
-        setLoading(false);
+      if(isLoggedIn){
+      await connectWallet();
+      await fetchPlayerStats(primaryWallet.address);
       }
     };
 
     init();
-  }, [isConnected]);
+  }, [isLoggedIn]);
 
   return (
     <PlayerContext.Provider value={{ 
@@ -134,7 +140,8 @@ export const PlayerProvider = ({ children }) => {
       register, 
       isRegistered,
       fetchPlayerStats,
-      contractAddress
+      contractAddress,
+      showRegistrationForm
     }}>
       {children}
     </PlayerContext.Provider>
