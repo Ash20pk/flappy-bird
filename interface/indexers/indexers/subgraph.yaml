@@ -1,0 +1,62 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: BirdGame
+    network: arbitrum-sepolia
+    source:
+      address: "0x56979559a754298832776ABe8a92050dDBE36325"
+      abi: BirdGame
+      startBlock: 82780198
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - BatchMetadataUpdate
+        - BirdMinted
+        - CoordinatorSet
+        - GamePlayed
+        - GameSetupGenerated
+        - LevelUp
+        - MetadataUpdate
+        - OwnershipTransferRequested
+        - OwnershipTransferred
+        - PlayerRegistered
+        - Transfer
+      abis:
+        - name: BirdGame
+          file: ./abis/BirdGame.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: BatchMetadataUpdate(uint256,uint256)
+          handler: handleBatchMetadataUpdate
+        - event: BirdMinted(indexed address,indexed uint256,uint256)
+          handler: handleBirdMinted
+        - event: CoordinatorSet(address)
+          handler: handleCoordinatorSet
+        - event: GamePlayed(indexed uint256,uint256,uint256,uint256)
+          handler: handleGamePlayed
+        - event: GameSetupGenerated(indexed uint256,uint256)
+          handler: handleGameSetupGenerated
+        - event: LevelUp(indexed uint256,uint256)
+          handler: handleLevelUp
+        - event: MetadataUpdate(uint256)
+          handler: handleMetadataUpdate
+        - event: OwnershipTransferRequested(indexed address,indexed address)
+          handler: handleOwnershipTransferRequested
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PlayerRegistered(indexed address,string)
+          handler: handlePlayerRegistered
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/bird-game.ts

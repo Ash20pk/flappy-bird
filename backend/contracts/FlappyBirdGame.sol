@@ -383,7 +383,7 @@ contract BirdGame is ERC721, ERC721URIStorage, ERC721Enumerable, VRFConsumerBase
         returns (string memory)
     {
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, uint256ToString(tokenId), ".json")) : "";
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, uint256ToString(tokenId+1), ".json")) : "";
     }
 
     function supportsInterface(bytes4 interfaceId)

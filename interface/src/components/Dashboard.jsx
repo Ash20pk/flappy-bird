@@ -1,11 +1,41 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PlayerContext } from '../hooks/PlayerContext';
-import flappyBgImage from '../assets/background-day-landscape.png'; 
-import flappyGroundImage from '../assets/ground-sprite.png'; 
+import flappyBgImage from '../assets/background-day-landscape.png';
+import flappyGroundImage from '../assets/ground-sprite.png';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import BirdGameABI from '../contracts/BirdGame.json';
+import { ethers } from 'ethers';
 
 const Dashboard = () => {
-  const { playerAddress, connectWallet, disconnectWallet, isConnected, loading, playerStats} = useContext(PlayerContext);
+  const { playerAddress, connectWallet, disconnectWallet, isConnected, loading, playerStats, provider, contractAddress } = useContext(PlayerContext);
+  const [nftImages, setNftImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchNFTImages = async () => {
+      if (playerStats.tokenOfOwnerByIndex) {
+        const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, provider);
+        const images = await Promise.all(playerStats.tokenOfOwnerByIndex.map(async (tokenId) => {
+          const tokenURI = await contract.tokenURI(tokenId);
+          const response = await fetch(tokenURI+1);
+          const metadata = await response.json();
+          return metadata.image;
+        }));
+        setNftImages(images);
+      }
+    };
+
+    fetchNFTImages();
+  }, [playerStats.tokenOfOwnerByIndex]);
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % nftImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + nftImages.length) % nftImages.length);
+  };
 
   if (loading) {
     return (
@@ -48,6 +78,19 @@ const Dashboard = () => {
         <div className="w-full max-w-md bg-yellow-300 rounded-xl shadow-lg p-6 relative z-10">
           <div className="relative">
             <h1 className="text-5xl font-bold text-center text-white mb-8 flappy-font shadow-text">Welcome {playerStats.name}</h1>
+            
+            {/* NFT Image Carousel */}
+            {nftImages.length > 0 && (
+              <div className="mb-8 relative">
+                <img src={nftImages[currentImageIndex]} alt="Player NFT" className="w-full h-64 object-cover rounded-lg shadow-md" />
+                <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md">
+                  <ChevronLeft size={24} />
+                </button>
+                <button onClick={nextImage} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md">
+                  <ChevronRight size={24} />
+                </button>
+              </div>
+            )}
             
             {playerStats && (
               <div className="grid grid-cols-1 gap-6 mb-8">

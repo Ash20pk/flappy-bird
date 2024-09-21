@@ -133,7 +133,8 @@ export const PlayerProvider = ({ children }) => {
       provider, 
       register, 
       isRegistered,
-      fetchPlayerStats
+      fetchPlayerStats,
+      contractAddress
     }}>
       {children}
     </PlayerContext.Provider>

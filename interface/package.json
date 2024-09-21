@@ -13,6 +13,7 @@
     "autoprefixer": "^10.4.20",
     "ethers": "^6.13.2",
     "graphql": "^16.9.0",
+    "lucide-react": "^0.445.0",
     "phaser": "^3.55.2",
     "postcss": "^8.4.47",
     "react": "^18.2.0",

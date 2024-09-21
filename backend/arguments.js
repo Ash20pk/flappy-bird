@@ -3,5 +3,5 @@ module.exports = [
   "504973677559818406867435023003820232523967586429429369463805118473742814362",
   "0x1770bdc7eec7771f7ba4ffd640f34260d7f095b79c92d34a5b2551d6f6cfd2be",
   2500000,
-  "https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmUQN1rrhP2gmNgdnNxppTmCW6zjDTPkt9oaaAhQS6kkbw/"
+  "https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmXvpXL2yUX6y8MYNz8mFf387EtFQZCnow5SprP68wnH9h/"
 ];
