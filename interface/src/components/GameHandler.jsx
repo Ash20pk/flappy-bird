@@ -10,6 +10,7 @@ function GameHandler() {
 
   const privateKey = process.env.VITE_PRIVATE_KEY;
   const wallet = new ethers.Wallet(privateKey);
+  const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = wallet.connect(provider);
   const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
 
