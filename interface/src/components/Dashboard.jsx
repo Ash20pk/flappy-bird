@@ -8,8 +8,8 @@ import BirdGameABI from '../contracts/BirdGame.json';
 import { ethers } from 'ethers';
 import {
   DynamicWidget,
-  useDynamicContext
 } from "@dynamic-labs/sdk-react-core";
+import { useNavigate } from 'react-router-dom';
 
 const Spritesheet = ({ src, frameWidth, frameHeight, frameCount, fps }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -36,9 +36,10 @@ const Spritesheet = ({ src, frameWidth, frameHeight, frameCount, fps }) => {
 };
 
 const Dashboard = () => {
-  const { playerAddress, connectWallet, disconnectWallet, isConnected, loading, playerStats, provider, contractAddress } = useContext(PlayerContext);
+  const {isConnected, loading, playerStats, provider, contractAddress } = useContext(PlayerContext);
   const [nftSpritesheets, setNftSpritesheets] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const navigate = useNavigate();
 
   console.log(playerStats);
 
@@ -65,6 +66,13 @@ const Dashboard = () => {
 
     fetchNFTSpritesheets();
   }, [playerStats.tokenOfOwnerByIndex, contractAddress, provider]);
+
+  console.log(isConnected);
+  useEffect(() => {
+    if(!isConnected){
+    navigate('/');
+    }
+  }, [isConnected])
 
   const nextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % nftSpritesheets.length);
