@@ -1,9 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { ethers } from 'ethers';
 import FlappyBirdGame from '../game/FlappyBirdGame';
 import BirdGameABI from '../contracts/BirdGame.json';
+import { PlayerContext } from '../hooks/PlayerContext';
 
-function GameHandler({ userAddress }) {
+function GameHandler() {
+  const { signer, contractAddress, playerStats } = useContext(PlayerContext);
+
   const handleGameOver = useCallback(async (finalScore) => {
     try {
       await submitScore(finalScore);
@@ -12,36 +15,29 @@ function GameHandler({ userAddress }) {
       console.error("Error submitting score:", error);
       alert("Failed to submit score. Please try again.");
     }
-  }, [userAddress]);
+  }, []);
 
   const submitScore = async (finalScore) => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(BirdGameABI.address, BirdGameABI.abi, signer);
+    if (!signer || !playerStats || playerStats.ownedBirds.length === 0) {
+      console.error("Signer not available or player has no birds");
+      return;
+    }
 
-    // EIP-712 signature
-    const domain = {
-      name: 'BirdGame',
-      version: '1',
-      chainId: await signer.getChainId(),
-      verifyingContract: BirdGameABI.address
-    };
+    const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
+    const birdId = playerStats.ownedBirds[0]; 
+    const gameId = await contract.currentGameId();
 
-    const types = {
-      GameScore: [
-        { name: 'player', type: 'address' },
-        { name: 'score', type: 'uint256' }
-      ]
-    };
+    // Create the message hash
+    const messageHash = ethers.utils.solidityKeccak256(
+      ['uint256', 'uint256', 'uint256'],
+      [birdId, gameId, finalScore]
+    );
 
-    const value = {
-      player: userAddress,
-      score: finalScore
-    };
+    // Sign the message hash
+    const signature = await signer.signMessage(ethers.utils.arrayify(messageHash));
 
-    const signature = await signer._signTypedData(domain, types, value);
-
-    await contract.submitScore(userAddress, finalScore, signature);
+    // Submit the score
+    await contract.submitScore(birdId, gameId, finalScore, signature);
   };
 
   return <FlappyBirdGame onGameOver={handleGameOver} />;

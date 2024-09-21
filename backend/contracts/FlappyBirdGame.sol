@@ -194,13 +194,13 @@ contract BirdGame is ERC721, ERC721URIStorage, ERC721Enumerable, VRFConsumerBase
         return positions;
     }
 
-    function submitScore(uint256 _birdId, uint256 _gameId, uint256 _score, bytes memory _signature) external {
+    function submitScore(uint256 _birdId, uint256 _gameId, address playerAddress, uint256 _score, bytes memory _signature) external {
         require(ownerOf(_birdId) == msg.sender, "Not the owner of the bird");
         require(verifySignature(_birdId, _gameId, _score, _signature), "Invalid signature");
-        require(players[msg.sender].isRegistered, "Player not registered");
+        require(players[playerAddress].isRegistered, "Player not registered");
 
         Bird storage bird = birds[_birdId];
-        Player storage player = players[msg.sender];
+        Player storage player = players[playerAddress];
 
         if (_score > bird.highScore) {
             bird.highScore = _score;
