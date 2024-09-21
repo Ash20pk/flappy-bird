@@ -231,7 +231,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         ground.anims.play(assets.animation.ground.stop)
     
         gameOverBanner.visible = true
-        // restartButton.visible = true
+        restartButton.visible = true
         onGameOver(score); //Handling the end game and resolve the final score to blockchain
     }
 
@@ -365,7 +365,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         messageInitial.visible = true
     
         birdName = getRandomBird()
-        player = scene.physics.add.sprite(width / 2.5, height/2.3, birdName)
+        player = scene.physics.add.sprite(width / 2.3, height/1.96, birdName)
         player.setCollideWorldBounds(true)
         player.anims.play(getAnimationBird(birdName).clapWings, true)
         player.body.allowGravity = false
