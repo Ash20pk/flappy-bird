@@ -76,12 +76,12 @@ export const PlayerProvider = ({ children }) => {
     }
     try {
       setLoading(true);
-      const { data } = await client.query({
+      const response = await client.query({
         query: GET_PLAYER,
         variables: { id: address.toLowerCase() },
       });
 
-      console.log(data)
+      const { data } = response || {}; 
       
       if (data && data.player) {
         setPlayerStats({
