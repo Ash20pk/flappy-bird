@@ -7,22 +7,22 @@ import { PlayerContext } from './hooks/PlayerContext';
 
 
 function App() {
-  const { playerAddress, isConnected} = useContext(PlayerContext);
+  const { playerAddress, isConnected, isRegistered} = useContext(PlayerContext);
 
   return (
     <Router>
       <Routes>
         <Route 
           path="/" 
-          element={isConnected ? <Navigate to="/dashboard" /> : <Register />} 
+          element={isRegistered ? <Navigate to="/dashboard" /> : <Register />} 
         />
         <Route 
           path="/dashboard" 
-          element={isConnected ? <Dashboard userAddress={playerAddress} /> : <Navigate to="/" />} 
+          element={isRegistered ? <Dashboard userAddress={playerAddress} /> : <Navigate to="/" />} 
         />
         <Route 
           path="/game" 
-          element={isConnected ? <Game userAddress={playerAddress} /> : <Navigate to="/" />} 
+          element={isRegistered ? <Game userAddress={playerAddress} /> : <Navigate to="/" />} 
         />
       </Routes>
     </Router>

@@ -1,9 +1,9 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
 const BirdGameModule = buildModule("BirdGameModule", (m) => {
-  const vrfCoordinatorV2Address = "0x343300b5d84D444B2ADc9116FEF1bED02BE49Cf2";
+  const vrfCoordinatorV2Address = "0x5CE8D5A2BC84beb22a398CCA51996F7930313D61";
   const subscriptionId = process.env.SUB_ID;
-  const keyHash = "0x816bedba8a50b294e5cbd47842baf240c2385f2eaf719edbd4f250a137a8c899";
+  const keyHash = "0x1770bdc7eec7771f7ba4ffd640f34260d7f095b79c92d34a5b2551d6f6cfd2be";
   const callbackGasLimit = 2500000;
   const baseURI = "https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmUQN1rrhP2gmNgdnNxppTmCW6zjDTPkt9oaaAhQS6kkbw/";
 

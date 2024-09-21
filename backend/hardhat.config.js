@@ -11,8 +11,8 @@ function privateKey() {
 
 module.exports = {
   networks: {
-    amoy: {
-      url: "https://polygon-amoy-bor-rpc.publicnode.com	",
+    base_sepolia: {
+      url: "https://base-sepolia-rpc.publicnode.com",
       accounts: privateKey(),
     },
     sepolia: {
