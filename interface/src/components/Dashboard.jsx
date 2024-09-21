@@ -50,7 +50,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (nftSpritesheets.length > 0) {
-      setSelectedNFT(nftSpritesheets[currentImageIndex]);
+      const nft = nftSpritesheets[currentImageIndex];
+      setSelectedNFT(nft);
+      // Write the selected NFT to localStorage
+      localStorage.setItem('selectedNFT', JSON.stringify(nft));
     }
   }, [nftSpritesheets, currentImageIndex]);
 

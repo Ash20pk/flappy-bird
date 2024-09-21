@@ -194,9 +194,9 @@ contract BirdGame is ERC721, ERC721URIStorage, ERC721Enumerable, VRFConsumerBase
         return positions;
     }
 
-    function submitScore(uint256 _birdId, uint256 _gameId, address playerAddress, uint256 _score, bytes memory _signature) external {
-        require(ownerOf(_birdId) == msg.sender, "Not the owner of the bird");
-        require(verifySignature(_birdId, _gameId, _score, _signature), "Invalid signature");
+     function submitScore(uint256 _birdId, uint256 _gameId, address playerAddress, uint256 _score) external {
+        require(msg.sender == owner() || msg.sender == playerAddress, "Unauthorized");
+        require(ownerOf(_birdId) == playerAddress, "Not the owner of the bird");
         require(players[playerAddress].isRegistered, "Player not registered");
 
         Bird storage bird = birds[_birdId];
@@ -237,26 +237,6 @@ contract BirdGame is ERC721, ERC721URIStorage, ERC721Enumerable, VRFConsumerBase
         });
 
         emit GamePlayed(_birdId, _gameId, _score, xpGain);
-    }
-
-    function verifySignature(uint256 _birdId, uint256 _gameId, uint256 _score, bytes memory _signature) internal view returns (bool) {
-        bytes32 messageHash = keccak256(abi.encodePacked(_birdId, _gameId, _score));
-        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
-        return recoverSigner(ethSignedMessageHash, _signature) == owner();
-    }
-
-    function recoverSigner(bytes32 _ethSignedMessageHash, bytes memory _signature) internal pure returns (address) {
-        (bytes32 r, bytes32 s, uint8 v) = splitSignature(_signature);
-        return ecrecover(_ethSignedMessageHash, v, r, s);
-    }
-
-    function splitSignature(bytes memory sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
-        require(sig.length == 65, "invalid signature length");
-        assembly {
-            r := mload(add(sig, 32))
-            s := mload(add(sig, 64))
-            v := byte(0, mload(add(sig, 96)))
-        }
     }
 
     function calculateLevel(uint256 _xp) internal pure returns (uint256) {

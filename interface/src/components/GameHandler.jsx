@@ -15,6 +15,7 @@ function GameHandler() {
   const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
 
 
+  console.log(playerStats);
   const handleGameOver = useCallback(async (finalScore) => {
     try {
       await submitScore(finalScore);
@@ -26,16 +27,16 @@ function GameHandler() {
   }, []);
 
   const submitScore = async (finalScore) => {
-    if (!signer || !playerStats || playerStats.ownedBirds.length === 0) {
+    if (!signer || !playerStats) {
       console.error("Signer not available or player has no birds");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const birdId = playerStats.ownedBirds[0];
+      const birdId = playerStats.tokenOfOwnerByIndex[0];
       const gameId = await contract.currentGameId();
-      const chainId = await signer.getChainId();
+      const chainId = 421614;
   
 
       // Prepare the data for signing
@@ -66,7 +67,7 @@ function GameHandler() {
 
       // Sign the typed data
       const signature = await signer.signTypedData(domain, types, value);
-      const { v, r, s } = ethers.utils.splitSignature(signature);
+      const { v, r, s } = ethers.Signature.from(signature);
 
       // Submit the score
       const tx = await contract.submitScore(
@@ -79,6 +80,7 @@ function GameHandler() {
         s
       );
       await tx.wait();
+      localStorage.removeItem(`selectedNFT`)
 
     } catch (error) {
       console.error("Error in submitScore:", error);
@@ -88,7 +90,7 @@ function GameHandler() {
     }
   };
 
-  return <FlappyBirdGame onGameOver={handleGameOver} isSubmitting={isSubmitting} />;
+  return <FlappyBirdGame onGameOver={handleGameOver} />;
 }
 
 export default GameHandler;
