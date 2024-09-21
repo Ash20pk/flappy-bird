@@ -257,7 +257,8 @@ const FlappyBirdGame = ({ onGameOver }) => {
         const pipeHorizontalDistance = 300;
         const pipeVerticalGap = 150; // Vertical gap between pipes
 
-        const pipeTopY = Phaser.Math.Between(-120, height - 320 - pipeVerticalGap)
+        //generate random number between -200 and height - 320 - pipeVerticalGap
+        const pipeTopY = Phaser.Math.Between(-200, height - 520 - pipeVerticalGap)
 
         const gap = scene.add.line(pipeHorizontalDistance, pipeTopY + 210, 0, 0, 0, pipeVerticalGap)
         gapsGroup.add(gap)
@@ -267,7 +268,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         const pipeTop = pipesGroup.create(pipeHorizontalDistance, pipeTopY, currentPipe.top)
         pipeTop.body.allowGravity = false
 
-        const pipeBottom = pipesGroup.create(pipeHorizontalDistance, pipeTopY + 320 + pipeVerticalGap, currentPipe.bottom)
+        const pipeBottom = pipesGroup.create(pipeHorizontalDistance, pipeTopY + 720 + pipeVerticalGap, currentPipe.bottom)
         pipeBottom.body.allowGravity = false
     }
     

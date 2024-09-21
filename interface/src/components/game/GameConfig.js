@@ -31,8 +31,8 @@ export const assets = {
     obstacle: {
         pipe: {
             green: {
-                top: 'pipe-green-top',
-                bottom: 'pipe-green-bottom'
+                top: 'pipe-green-top-long',
+                bottom: 'pipe-green-bottom-long'
             },
             red: {
                 top: 'pipe-red-top',
@@ -52,7 +52,7 @@ export const assets = {
         messageInitial: 'message-initial'
     },
     scoreboard: {
-        width: 25,
+        width: 100,
         base: 'number',
         number0: 'number0',
         number1: 'number1',
