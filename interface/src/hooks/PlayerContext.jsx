@@ -75,7 +75,7 @@ export const PlayerProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  
+
   const fetchPlayerStats = async (address) => {
     if (!address) {
       return;
@@ -169,8 +169,6 @@ export const PlayerProvider = ({ children }) => {
       await fetchPlayerStats(newAddress);
     }
   };
-
-  // ... rest of the component (register function, etc.)
 
   return (
     <PlayerContext.Provider value={{ 
