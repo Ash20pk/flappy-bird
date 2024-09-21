@@ -56,6 +56,7 @@ export const PlayerProvider = ({ children }) => {
       const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
       const tx = await contract.registerPlayer(name);
       await tx.wait();
+      fetchPlayerStats(playerAddress);
     } catch (error) {
       console.error("Failed to register player:", error);
       setLoading(false);

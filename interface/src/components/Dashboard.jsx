@@ -6,6 +6,10 @@ import flappyGroundImage from '../assets/ground-sprite.png';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BirdGameABI from '../contracts/BirdGame.json';
 import { ethers } from 'ethers';
+import {
+  DynamicWidget,
+  useDynamicContext
+} from "@dynamic-labs/sdk-react-core";
 
 const Spritesheet = ({ src, frameWidth, frameHeight, frameCount, fps }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -35,6 +39,8 @@ const Dashboard = () => {
   const { playerAddress, connectWallet, disconnectWallet, isConnected, loading, playerStats, provider, contractAddress } = useContext(PlayerContext);
   const [nftSpritesheets, setNftSpritesheets] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  console.log(playerStats);
 
   useEffect(() => {
     const fetchNFTSpritesheets = async () => {
@@ -93,15 +99,7 @@ const Dashboard = () => {
       
       {/* Wallet connection section at top right of screen */}
       <div className="absolute top-4 right-4 flex items-center space-x-2 z-20">
-        {playerAddress && (
-          <div className="text-sm text-black flappy-font bg-white px-2 py-1 rounded shadow-md">
-            <span className="font-bold">Address:</span> { playerAddress.slice(0, 6)}...{playerAddress.slice(-4)}
-          </div>
-        )}
-        {isConnected ? 
-          <button onClick={disconnectWallet} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flappy-font text-sm shadow-md transition duration-300">Disconnect</button> :
-          <button onClick={connectWallet} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flappy-font text-sm shadow-md transition duration-300">Connect</button>
-        }
+       <DynamicWidget/>
       </div>
       
       {/* Main dashboard content */}

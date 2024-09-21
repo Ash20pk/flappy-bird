@@ -5,14 +5,12 @@ import flappyBgImage from '../assets/background-day-landscape.png';
 import flappyGroundImage from '../assets/ground-sprite.png'; 
 import {
   DynamicWidget,
-  useDynamicContext
 } from "@dynamic-labs/sdk-react-core";
 
 function Register() {
   const { register, isRegistered, isConnected, playerAddress, loading, fetchPlayerStats, showRegistrationForm } = useContext(PlayerContext);
   const [name, setName] = useState('');
   const navigate = useNavigate();
-  const { setShowAuthFlow, handleLogOut } = useDynamicContext();
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -30,8 +28,6 @@ function Register() {
 
     checkUserStatus();
   }, [isRegistered]);
-
-  console.log(isConnected,showRegistrationForm);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -51,13 +47,7 @@ function Register() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <div className="absolute top-0 right-0 m-4 z-20">
-      {!isConnected ?
-        (<button className='bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 flappy-font text-l shadow-lg disabled:opacity-50' onClick={() => setShowAuthFlow(true)}>
-          Connect Wallet
-        </button>) 
-        : (<button className='bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 flappy-font text-l shadow-lg disabled:opacity-50' onClick={() => handleLogOut()}>
-          Disconnect Wallet
-      </button>)}
+      <DynamicWidget/>
       </div>
       
       <div 
