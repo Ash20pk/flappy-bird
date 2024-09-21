@@ -57,7 +57,8 @@ const FlappyBirdGame = ({ onGameOver }) => {
 
     function create() {
         const { width, height } = this.sys.game.config;
-        
+        this.debugText = this.add.text(10, 10, 'Debug: ', { fontSize: '16px', fill: '#000' });
+
         backgroundDay = this.add.image(width / 2, height / 2, assets.scene.background.day)
             .setDisplaySize(width, height)
             .setInteractive();
@@ -181,6 +182,8 @@ const FlappyBirdGame = ({ onGameOver }) => {
         })
     }
     function update() {
+        this.debugText.setText(`Debug: Score: ${score}, Pipes: ${pipesGroup.countActive()}, Gaps: ${gapsGroup.countActive()}`);
+
         if (gameOver || !gameStarted)
             return
 
@@ -233,9 +236,11 @@ const FlappyBirdGame = ({ onGameOver }) => {
     }
 
     function updateScore(_, gap) {
+        console.log(1111)
         score++
         gap.destroy()
-    
+        
+        console.log("Score updated:", gap);
         if (score % 10 == 0) {
             backgroundDay.visible = !backgroundDay.visible
             backgroundNight.visible = !backgroundNight.visible
@@ -263,10 +268,12 @@ const FlappyBirdGame = ({ onGameOver }) => {
         //generate random number between -200 and height - 320 - pipeVerticalGap
         const pipeTopY = Phaser.Math.Between(-200, height - 520 - pipeVerticalGap)
 
-        const gap = scene.add.line(pipeHorizontalDistance, pipeTopY + 210, 0, 0, 0, pipeVerticalGap)
+        const gap = scene.add.line(pipeHorizontalDistance, pipeTopY + 410, 0, 0, 0, pipeVerticalGap);
         gapsGroup.add(gap)
         gap.body.allowGravity = false
         gap.visible = false
+        
+
 
         const pipeTop = pipesGroup.create(pipeHorizontalDistance, pipeTopY, currentPipe.top)
         pipeTop.body.allowGravity = false
@@ -366,7 +373,11 @@ const FlappyBirdGame = ({ onGameOver }) => {
         scene.physics.add.collider(player, ground, hitBird, null, scene)
         scene.physics.add.collider(player, pipesGroup, hitBird, null, scene)
     
-        scene.physics.add.overlap(player, gapsGroup, updateScore, null, scene)
+        scene.physics.add.overlap(player, gapsGroup, updateScore, null, scene);
+        console.log("Collision detection set up");
+        console.log("Player:", player);
+        console.log("GapsGroup:", gapsGroup);
+    
     
         ground.anims.play(assets.animation.ground.moving, true)
     }
