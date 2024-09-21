@@ -22,7 +22,7 @@ function App() {
         />
         <Route 
           path="/game" 
-          element={isConnected ? <Game userAddress={playerAddress} /> : <Navigate to="/" />} 
+          element={<Game userAddress={playerAddress}/>} 
         />
       </Routes>
     </Router>

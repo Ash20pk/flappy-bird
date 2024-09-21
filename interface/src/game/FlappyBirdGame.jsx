@@ -7,14 +7,16 @@ const FlappyBirdGame = ({ onGameOver }) => {
   useEffect(() => {
     const configurations = {
         type: Phaser.AUTO,
-        width: 288,
-        height: 512,
+        scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+            width: window.innerWidth,
+            height: window.innerHeight,
+        },
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: {
-                    y: 300
-                },
+                gravity: {y: 300 },
                 debug: false
             }
         },
@@ -112,10 +114,11 @@ const FlappyBirdGame = ({ onGameOver }) => {
     let score
 
     function preload() {
-        this.load.setBaseURL('https://flappy-bird-teal-seven.vercel.app/interface/src/');
+        const { width, height } = this.sys.game.config;
+        this.load.setBaseURL('/src/');
         // Backgrounds and ground
-        this.load.image(assets.scene.background.day, 'assets/background-day.png')
-        this.load.image(assets.scene.background.night, 'assets/background-night.png')
+        this.load.image(assets.scene.background.day, 'assets/background-day-landscape.png')
+        this.load.image(assets.scene.background.night, 'assets/background-night-landscape.png')
         this.load.spritesheet(assets.scene.ground, 'assets/ground-sprite.png', {
             frameWidth: 336,
             frameHeight: 112
@@ -162,23 +165,30 @@ const FlappyBirdGame = ({ onGameOver }) => {
     }
 
     function create() {
-        backgroundDay = this.add.image(assets.scene.width, 256, assets.scene.background.day).setInteractive()
-        backgroundDay.on('pointerdown', moveBird)
-        backgroundNight = this.add.image(assets.scene.width, 256, assets.scene.background.night).setInteractive()
-        backgroundNight.visible = false
-        backgroundNight.on('pointerdown', moveBird)
+        const { width, height } = this.sys.game.config;
+        backgroundDay = this.add.image(width / 2, height / 2, assets.scene.background.day)
+            .setDisplaySize(width, height)
+            .setInteractive();
+        backgroundDay.on('pointerdown', moveBird.bind(this));
+        
+        backgroundNight = this.add.image(width / 2, height / 2, assets.scene.background.night)
+            .setDisplaySize(width, height)
+            .setInteractive();
+        backgroundNight.visible = false;
+        backgroundNight.on('pointerdown', moveBird.bind(this));
     
         gapsGroup = this.physics.add.group()
         pipesGroup = this.physics.add.group()
         scoreboardGroup = this.physics.add.staticGroup()
     
-        ground = this.physics.add.sprite(assets.scene.width, 458, assets.scene.ground)
-        ground.setCollideWorldBounds(true)
-        ground.setDepth(10)
+        ground = this.physics.add.sprite(width / 2, height - 56, assets.scene.ground)
+            .setDisplaySize(width, 112);
+        ground.setCollideWorldBounds(true);
+        ground.setDepth(10);
     
-        messageInitial = this.add.image(assets.scene.width, 156, assets.scene.messageInitial)
-        messageInitial.setDepth(30)
-        messageInitial.visible = false
+        messageInitial = this.add.image(width / 2, height / 2 - 100, assets.scene.messageInitial)
+            .setDepth(30)
+            .setVisible(false);
     
         upButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
     
@@ -464,7 +474,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
   };
 }, [onGameOver]);
 
-return <div ref={gameRef} style={{ width: '288px', height: '512px' }} />;
+// return <div ref={gameRef} style={{ width: '288px', height: '512px' }} />;
 };
 
 export default FlappyBirdGame;
