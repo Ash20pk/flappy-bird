@@ -8,9 +8,9 @@ dataSources:
     name: BirdGame
     network: arbitrum-sepolia
     source:
-      address: "0x9a860192069945506e414eC2AD1396008E882561"
+      address: "0x56979559a754298832776ABe8a92050dDBE36325"
       abi: BirdGame
-      startBlock: 82735663
+      startBlock: 82780198
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

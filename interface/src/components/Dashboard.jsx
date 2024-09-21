@@ -7,34 +7,65 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BirdGameABI from '../contracts/BirdGame.json';
 import { ethers } from 'ethers';
 
+const Spritesheet = ({ src, frameWidth, frameHeight, frameCount, fps }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentFrame((prevFrame) => (prevFrame + 1) % frameCount);
+    }, 1000 / fps);
+
+    return () => clearInterval(intervalId);
+  }, [frameCount, fps]);
+
+  return (
+    <div
+      style={{
+        width: frameWidth,
+        height: frameHeight,
+        backgroundImage: `url(${src})`,
+        backgroundPosition: `-${currentFrame * frameWidth}px 0px`,
+        backgroundRepeat: 'no-repeat',
+      }}
+    />
+  );
+};
+
 const Dashboard = () => {
   const { playerAddress, connectWallet, disconnectWallet, isConnected, loading, playerStats, provider, contractAddress } = useContext(PlayerContext);
-  const [nftImages, setNftImages] = useState([]);
+  const [nftSpritesheets, setNftSpritesheets] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    const fetchNFTImages = async () => {
+    const fetchNFTSpritesheets = async () => {
       if (playerStats.tokenOfOwnerByIndex) {
         const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, provider);
-        const images = await Promise.all(playerStats.tokenOfOwnerByIndex.map(async (tokenId) => {
+        const spritesheets = await Promise.all(playerStats.tokenOfOwnerByIndex.map(async (tokenId) => {
           const tokenURI = await contract.tokenURI(tokenId);
-          const response = await fetch(tokenURI+1);
+          console.log(tokenId, tokenURI);
+          const response = await fetch(tokenURI);
           const metadata = await response.json();
-          return metadata.image;
+          return {
+            src: metadata.image,
+            frameWidth: metadata.frameWidth,
+            frameHeight: metadata.frameHeight,
+            frameCount: metadata.frameCount,
+            fps: metadata.fps,
+          };
         }));
-        setNftImages(images);
+        setNftSpritesheets(spritesheets);
       }
     };
 
-    fetchNFTImages();
-  }, [playerStats.tokenOfOwnerByIndex]);
+    fetchNFTSpritesheets();
+  }, [playerStats.tokenOfOwnerByIndex, contractAddress, provider]);
 
   const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % nftImages.length);
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % nftSpritesheets.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + nftImages.length) % nftImages.length);
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + nftSpritesheets.length) % nftSpritesheets.length);
   };
 
   if (loading) {
@@ -79,10 +110,12 @@ const Dashboard = () => {
           <div className="relative">
             <h1 className="text-5xl font-bold text-center text-white mb-8 flappy-font shadow-text">Welcome {playerStats.name}</h1>
             
-            {/* NFT Image Carousel */}
-            {nftImages.length > 0 && (
+            {/* NFT Spritesheet Carousel */}
+            {nftSpritesheets.length > 0 && (
               <div className="mb-8 relative">
-                <img src={nftImages[currentImageIndex]} alt="Player NFT" className="w-full h-64 object-cover rounded-lg shadow-md" />
+                <div className="w-full h-24 flex items-center justify-center">
+                  <Spritesheet {...nftSpritesheets[currentImageIndex]} />
+                </div>
                 <button onClick={prevImage} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md">
                   <ChevronLeft size={24} />
                 </button>
