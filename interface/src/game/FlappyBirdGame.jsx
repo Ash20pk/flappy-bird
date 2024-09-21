@@ -236,7 +236,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
     }
 
     function updateScore(_, gap) {
-        score += 10
+        score ++;
         gap.destroy()
         
         console.log("Score updated:", gap);
