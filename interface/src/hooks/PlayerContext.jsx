@@ -26,49 +26,36 @@ export const PlayerProvider = ({ children }) => {
 
   const connectWallet = async () => {
     try {
-
-      // Ensure the user is on the correct network
       await ensureArbitrumSepoliaNetwork();
       
       const provider = new ethers.BrowserProvider(window.ethereum);
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       const signer = await provider.getSigner();
-      setPlayerAddress(await signer.getAddress());
+      const address = await signer.getAddress();
+      setPlayerAddress(address);
       setIsConnected(true);
       setProvider(provider);
       setSigner(signer);
-      await fetchPlayerStats(await signer.getAddress());
+      await fetchPlayerStats(address);
     } catch (error) {
       console.error("Failed to connect wallet:", error);
       throw error;
     }
   };
 
-  const register = async (name) => {
-    if (!signer) {
-      throw new Error("Wallet not connected");
-    }
-    try {
-      setLoading(true);
-      const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
-      const tx = await contract.registerPlayer(name);
-      await tx.wait();
-    } catch (error) {
-      console.error("Failed to register player:", error);
-      setLoading(false);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const disconnectWallet = () => {
+  const disconnectWallet = async () => {
     setPlayerAddress('');
     setIsConnected(false);
     setSigner(null);
     setProvider(null);
     setIsRegistered(false);
     setPlayerStats(null);
+
+    // For MetaMask and most other wallets, we can't forcefully disconnect
+    // But we can prompt the user to disconnect manually
+    if (window.ethereum) {
+      alert("Please disconnect your wallet manually from the MetaMask extension.");
+    }
   };
 
   const fetchPlayerStats = async (address) => {
@@ -109,18 +96,81 @@ export const PlayerProvider = ({ children }) => {
     }
   };
 
+  const register = async (name) => {
+    if (!signer) {
+      throw new Error("Wallet not connected");
+    }
+    try {
+      setLoading(true);
+      const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
+      const tx = await contract.registerPlayer(name);
+      await tx.wait();
+      await fetchPlayerStats(await signer.getAddress());
+    } catch (error) {
+      console.error("Failed to register player:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const init = async () => {
-      if (playerAddress) {
-        await fetchPlayerStats(playerAddress);
-        console.log(isRegistered);
+    const checkConnection = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        setProvider(provider);
+
+        try {
+          const accounts = await provider.listAccounts();
+          if (accounts.length > 0) {
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress();
+            setPlayerAddress(address);
+            setIsConnected(true);
+            setSigner(signer);
+            await fetchPlayerStats(address);
+          }
+        } catch (error) {
+          console.error("Error checking wallet connection:", error);
+        } finally {
+          setLoading(false);
+        }
+
+        // Set up listeners for account and network changes
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', () => window.location.reload());
       } else {
         setLoading(false);
       }
     };
 
-    init();
-  }, [isConnected]);
+    checkConnection();
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', () => {});
+      }
+    };
+  }, []);
+
+  const handleAccountsChanged = async (accounts) => {
+    if (accounts.length === 0) {
+      // User disconnected their wallet
+      await disconnectWallet();
+    } else {
+      // User switched to a different account
+      const newAddress = accounts[0];
+      setPlayerAddress(newAddress);
+      setIsConnected(true);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      setSigner(signer);
+      await fetchPlayerStats(newAddress);
+    }
+  };
+
+  // ... rest of the component (register function, etc.)
 
   return (
     <PlayerContext.Provider value={{ 
