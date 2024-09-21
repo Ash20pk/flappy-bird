@@ -6,9 +6,7 @@ import flappyGroundImage from '../assets/ground-sprite.png';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BirdGameABI from '../contracts/BirdGame.json';
 import { ethers } from 'ethers';
-import {
-  DynamicWidget,
-} from "@dynamic-labs/sdk-react-core";
+import { DynamicWidget, useIsLoggedIn } from '@dynamic-labs/sdk-react-core'
 import { useNavigate } from 'react-router-dom';
 
 const Spritesheet = ({ src, frameWidth, frameHeight, frameCount, fps }) => {
@@ -36,12 +34,18 @@ const Spritesheet = ({ src, frameWidth, frameHeight, frameCount, fps }) => {
 };
 
 const Dashboard = () => {
-  const {isConnected, loading, playerStats, provider, contractAddress } = useContext(PlayerContext);
+  const {disconnectWallet, loading, playerStats, provider, contractAddress } = useContext(PlayerContext);
   const [nftSpritesheets, setNftSpritesheets] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const isLoggedIn = useIsLoggedIn();
   const navigate = useNavigate();
 
-  console.log(playerStats);
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/');
+      disconnectWallet();
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const fetchNFTSpritesheets = async () => {
@@ -66,13 +70,6 @@ const Dashboard = () => {
 
     fetchNFTSpritesheets();
   }, [playerStats.tokenOfOwnerByIndex, contractAddress, provider]);
-
-  console.log(isConnected);
-  useEffect(() => {
-    if(!isConnected){
-    navigate('/');
-    }
-  }, [isConnected])
 
   const nextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % nftSpritesheets.length);

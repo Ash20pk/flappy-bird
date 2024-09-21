@@ -5,12 +5,14 @@ import flappyBgImage from '../assets/background-day-landscape.png';
 import flappyGroundImage from '../assets/ground-sprite.png'; 
 import {
   DynamicWidget,
+  useIsLoggedIn
 } from "@dynamic-labs/sdk-react-core";
 
 function Register() {
-  const { register, isRegistered, isConnected, playerAddress, loading, fetchPlayerStats, showRegistrationForm } = useContext(PlayerContext);
+  const { register, isRegistered, isConnected, playerAddress, loading, fetchPlayerStats, showRegistrationForm, disconnectWallet } = useContext(PlayerContext);
   const [name, setName] = useState('');
   const navigate = useNavigate();
+  const isLoggedIn = useIsLoggedIn();
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -28,6 +30,12 @@ function Register() {
 
     checkUserStatus();
   }, [isRegistered]);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      disconnectWallet();
+    }
+  }, [isLoggedIn]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
