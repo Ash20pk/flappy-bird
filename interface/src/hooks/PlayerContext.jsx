@@ -17,6 +17,7 @@ const client = new ApolloClient({
 export const PlayerProvider = ({ children }) => {
   const [playerAddress, setPlayerAddress] = useState('');
   const [playerStats, setPlayerStats] = useState(null);
+  const [nftSpritesheets, setNftSpritesheets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [signer, setSigner] = useState(null);
@@ -128,6 +129,30 @@ export const PlayerProvider = ({ children }) => {
     init();
   }, [isLoggedIn]);
 
+  useEffect(() => {
+    const fetchNFTSpritesheets = async () => {
+      if (playerStats?.tokenOfOwnerByIndex) {
+        const spritesheets = await Promise.all(playerStats.tokenOfOwnerByIndex.map(async (tokenId) => {
+          const imageId = Number(tokenId) + 1;
+          const tokenURI = `https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmXvpXL2yUX6y8MYNz8mFf387EtFQZCnow5SprP68wnH9h/${imageId}.json`;
+          console.log(tokenId, tokenURI);
+          const response = await fetch(tokenURI);
+          const metadata = await response.json();
+          return {
+            src: metadata.image,
+            frameWidth: metadata.frameWidth,
+            frameHeight: metadata.frameHeight,
+            frameCount: metadata.frameCount,
+            fps: metadata.fps,
+          };
+        }));
+        setNftSpritesheets(spritesheets);
+      }
+    };
+
+    fetchNFTSpritesheets();
+  }, [playerStats]);
+
   return (
     <PlayerContext.Provider value={{ 
       playerAddress, 
@@ -142,7 +167,8 @@ export const PlayerProvider = ({ children }) => {
       isRegistered,
       fetchPlayerStats,
       contractAddress,
-      showRegistrationForm
+      showRegistrationForm,
+      nftSpritesheets
     }}>
       {children}
     </PlayerContext.Provider>
