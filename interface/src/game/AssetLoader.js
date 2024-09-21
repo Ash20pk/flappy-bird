@@ -14,8 +14,8 @@ export function preloadAssets(scene) {
     // Pipes
     scene.load.image(assets.obstacle.pipe.green.top, 'pipe-green-top-long.png');
     scene.load.image(assets.obstacle.pipe.green.bottom, 'pipe-green-bottom-long.png');
-    scene.load.image(assets.obstacle.pipe.red.top, 'pipe-red-top.png');
-    scene.load.image(assets.obstacle.pipe.red.bottom, 'pipe-red-bottom.png');
+    scene.load.image(assets.obstacle.pipe.red.top, 'pipe-red-top-long.png');
+    scene.load.image(assets.obstacle.pipe.red.bottom, 'pipe-red-bottom-long.png');
 
     // Start game
     scene.load.image(assets.scene.messageInitial, 'message-initial.png');

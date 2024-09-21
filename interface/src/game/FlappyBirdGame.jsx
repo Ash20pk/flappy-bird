@@ -236,8 +236,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
     }
 
     function updateScore(_, gap) {
-        console.log(1111)
-        score++
+        score += 10
         gap.destroy()
         
         console.log("Score updated:", gap);
@@ -326,6 +325,9 @@ const FlappyBirdGame = ({ onGameOver }) => {
         scoreboardGroup.clear(true, true)
     
         const scoreAsString = score.toString()
+        const digitWidth = assets.scoreboard.width;
+        const padding = 2;
+
         if (scoreAsString.length == 1)
             scoreboardGroup.create(assets.scene.width, 30, assets.scoreboard.base + score).setDepth(10)
         else {
@@ -358,7 +360,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         framesMoveUp = 0
         nextPipes = 0
         currentPipe = assets.obstacle.pipe.green
-        score = 0
+        score = 10
         gameOver = false
         backgroundDay.visible = true
         backgroundNight.visible = false
