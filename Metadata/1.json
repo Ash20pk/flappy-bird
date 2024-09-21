@@ -1,0 +1,12 @@
+{
+    "name": "Blue Bird",
+    "description": "A nimble Blue Bird soaring through the skies in the Flappy Bird game.",
+    "image": "https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmUQN1rrhP2gmNgdnNxppTmCW6zjDTPkt9oaaAhQS6kkbw/1.png",
+    "attributes": [
+      {
+        "trait_type": "Color",
+        "value": "Blue"
+      }
+    ]
+  }
+  

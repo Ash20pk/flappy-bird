@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 
-// GraphQL query to fetch player data
 export const GET_PLAYER = gql`
   query GetPlayer($id: ID!) {
     player(id: $id) {
@@ -9,8 +8,11 @@ export const GET_PLAYER = gql`
       highScore
       xp
       level
-      ownedBirds {
+      balance
+      tokenOfOwnerByIndex
+      ownedBirds(orderBy: ownerIndex, orderDirection: asc) {
         id
+        ownerIndex
         highScore
         xp
         level

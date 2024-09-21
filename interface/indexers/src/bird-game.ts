@@ -3,9 +3,11 @@ import {
   BirdMinted,
   GamePlayed,
   LevelUp,
-  PlayerRegistered
+  PlayerRegistered,
+  Transfer
 } from "../generated/BirdGame/BirdGame"
 import { BirdMintedEvent, GamePlayedEvent, LevelUpEvent, PlayerRegisteredEvent, Bird, Game, Player, GameHistory } from "../generated/schema"
+import { BirdGame } from "../generated/BirdGame/BirdGame"
 
 export function handleBirdMinted(event: BirdMinted): void {
   let entity = new BirdMintedEvent(
@@ -30,15 +32,83 @@ export function handleBirdMinted(event: BirdMinted): void {
     player.highScore = BigInt.fromI32(0)
     player.xp = BigInt.fromI32(0)
     player.level = BigInt.fromI32(1)
-    player.save()
+    player.balance = BigInt.fromI32(0)
+    player.tokenOfOwnerByIndex = []
   }
+  
+  let contract = BirdGame.bind(event.address)
+  player.balance = contract.balanceOf(event.params.owner)
+  
+  // Add new token to tokenOfOwnerByIndex
+  let tokenOfOwnerByIndex = player.tokenOfOwnerByIndex
+  tokenOfOwnerByIndex.push(event.params.tokenId)
+  player.tokenOfOwnerByIndex = tokenOfOwnerByIndex
+
+  player.save()
   
   bird.owner = player.id
   bird.highScore = BigInt.fromI32(0)
   bird.xp = BigInt.fromI32(0)
   bird.level = BigInt.fromI32(1)
   bird.imageId = event.params.imageId
+  bird.ownerIndex = player.balance.minus(BigInt.fromI32(1))
   bird.save()
+}
+
+export function handleTransfer(event: Transfer): void {
+  let fromPlayer = Player.load(event.params.from.toHexString())
+  let toPlayer = Player.load(event.params.to.toHexString())
+  let contract = BirdGame.bind(event.address)
+
+  if (fromPlayer) {
+    fromPlayer.balance = contract.balanceOf(event.params.from)
+    
+    // Remove transferred token from fromPlayer's tokenOfOwnerByIndex
+    let fromTokens = fromPlayer.tokenOfOwnerByIndex
+    let index = fromTokens.indexOf(event.params.tokenId)
+    if (index > -1) {
+      fromTokens.splice(index, 1)
+    }
+    fromPlayer.tokenOfOwnerByIndex = fromTokens
+
+    fromPlayer.save()
+
+    // Update indices for remaining birds of fromPlayer
+    for (let i = 0; i < fromPlayer.balance.toI32(); i++) {
+      let tokenId = contract.tokenOfOwnerByIndex(event.params.from, BigInt.fromI32(i))
+      let bird = Bird.load(tokenId.toString())
+      if (bird) {
+        bird.ownerIndex = BigInt.fromI32(i)
+        bird.save()
+      }
+    }
+  }
+
+  if (toPlayer === null) {
+    toPlayer = new Player(event.params.to.toHexString())
+    toPlayer.name = "Unknown"
+    toPlayer.highScore = BigInt.fromI32(0)
+    toPlayer.xp = BigInt.fromI32(0)
+    toPlayer.level = BigInt.fromI32(1)
+    toPlayer.balance = BigInt.fromI32(0)
+    toPlayer.tokenOfOwnerByIndex = []
+  }
+
+  toPlayer.balance = contract.balanceOf(event.params.to)
+  
+  // Add transferred token to toPlayer's tokenOfOwnerByIndex
+  let toTokens = toPlayer.tokenOfOwnerByIndex
+  toTokens.push(event.params.tokenId)
+  toPlayer.tokenOfOwnerByIndex = toTokens
+
+  toPlayer.save()
+
+  let bird = Bird.load(event.params.tokenId.toString())
+  if (bird) {
+    bird.owner = toPlayer.id
+    bird.ownerIndex = toPlayer.balance.minus(BigInt.fromI32(1))
+    bird.save()
+  }
 }
 
 export function handleGamePlayed(event: GamePlayed): void {
@@ -126,5 +196,7 @@ export function handlePlayerRegistered(event: PlayerRegistered): void {
   player.highScore = BigInt.fromI32(0)
   player.xp = BigInt.fromI32(0)
   player.level = BigInt.fromI32(1)
+  player.balance = BigInt.fromI32(0)
+  player.tokenOfOwnerByIndex = [] 
   player.save()
 }

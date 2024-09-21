@@ -590,6 +590,19 @@ export class Bird extends Entity {
   get games(): GameHistoryLoader {
     return new GameHistoryLoader("Bird", this.get("id")!.toString(), "games");
   }
+
+  get ownerIndex(): BigInt {
+    let value = this.get("ownerIndex");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set ownerIndex(value: BigInt) {
+    this.set("ownerIndex", Value.fromBigInt(value));
+  }
 }
 
 export class Game extends Entity {
@@ -776,6 +789,32 @@ export class Player extends Entity {
 
   get games(): GameHistoryLoader {
     return new GameHistoryLoader("Player", this.get("id")!.toString(), "games");
+  }
+
+  get balance(): BigInt {
+    let value = this.get("balance");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set balance(value: BigInt) {
+    this.set("balance", Value.fromBigInt(value));
+  }
+
+  get tokenOfOwnerByIndex(): Array<BigInt> {
+    let value = this.get("tokenOfOwnerByIndex");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set tokenOfOwnerByIndex(value: Array<BigInt>) {
+    this.set("tokenOfOwnerByIndex", Value.fromBigIntArray(value));
   }
 }
 

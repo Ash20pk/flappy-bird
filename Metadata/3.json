@@ -1,0 +1,12 @@
+{
+    "name": "Yellow Bird",
+    "description": "A charming Yellow Bird fluttering in the Flappy Bird game.",
+    "image": "https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmUQN1rrhP2gmNgdnNxppTmCW6zjDTPkt9oaaAhQS6kkbw/3.png",
+    "attributes": [
+      {
+        "trait_type": "Color",
+        "value": "Yellow"
+      }
+    ]
+  }
+  

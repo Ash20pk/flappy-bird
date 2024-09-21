@@ -45,6 +45,7 @@ type Bird @entity {
   level: BigInt!
   imageId: BigInt!
   games: [GameHistory!]! @derivedFrom(field: "bird")
+  ownerIndex: BigInt!
 }
 
 type Game @entity {
@@ -63,6 +64,8 @@ type Player @entity {
   level: BigInt!
   ownedBirds: [Bird!]! @derivedFrom(field: "owner")
   games: [GameHistory!]! @derivedFrom(field: "player")
+  balance: BigInt!
+  tokenOfOwnerByIndex: [BigInt!]!
 }
 
 type GameHistory @entity {

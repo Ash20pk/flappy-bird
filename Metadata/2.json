@@ -1,0 +1,12 @@
+{
+    "name": "Red Bird",
+    "description": "The Red Bird with sharp reflexes in the Flappy Bird game.",
+    "image": "https://silver-blushing-woodpecker-143.mypinata.cloud/ipfs/QmUQN1rrhP2gmNgdnNxppTmCW6zjDTPkt9oaaAhQS6kkbw/2.png",
+    "attributes": [
+      {
+        "trait_type": "Color",
+        "value": "Red"
+      }
+    ]
+  }
+  

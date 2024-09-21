@@ -47,7 +47,7 @@ const Dashboard = () => {
       <div className="flex-grow flex items-center justify-center p-4 font-sans">
         <div className="w-full max-w-md bg-yellow-300 rounded-xl shadow-lg p-6 relative z-10">
           <div className="relative">
-            <h1 className="text-5xl font-bold text-center text-white mb-8 flappy-font shadow-text">Flappy Dashboard</h1>
+            <h1 className="text-5xl font-bold text-center text-white mb-8 flappy-font shadow-text">Welcome {playerStats.name}</h1>
             
             {playerStats && (
               <div className="grid grid-cols-1 gap-6 mb-8">

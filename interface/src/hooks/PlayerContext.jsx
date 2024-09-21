@@ -81,7 +81,8 @@ export const PlayerProvider = ({ children }) => {
         variables: { id: address.toLowerCase() },
       });
 
-      const { data } = response || {}; 
+      const { data } = response || {};
+      console.log(data);
       
       if (data && data.player) {
         setPlayerStats({
@@ -89,7 +90,8 @@ export const PlayerProvider = ({ children }) => {
           highScore: data.player.highScore,
           xp: data.player.xp,
           level: data.player.level,
-          ownedBirds: data.player.ownedBirds,
+          balance: data.player.balance,
+          tokenOfOwnerByIndex: data.player.tokenOfOwnerByIndex,
         });
         setIsRegistered(true);
       } else {
