@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
+import { preloadAssets } from './AssetLoader';
 
 const FlappyBirdGame = ({ onGameOver }) => {
   const gameRef = useRef(null);
@@ -113,55 +114,8 @@ const FlappyBirdGame = ({ onGameOver }) => {
     let scoreboardGroup
     let score
 
-    function preload() {
-        const { width, height } = this.sys.game.config;
-        this.load.setBaseURL('/src/');
-        // Backgrounds and ground
-        this.load.image(assets.scene.background.day, 'assets/background-day-landscape.png')
-        this.load.image(assets.scene.background.night, 'assets/background-night-landscape.png')
-        this.load.spritesheet(assets.scene.ground, 'assets/ground-sprite.png', {
-            frameWidth: 336,
-            frameHeight: 112
-        })
-
-        // Pipes
-        this.load.image(assets.obstacle.pipe.green.top, 'assets/pipe-green-top.png')
-        this.load.image(assets.obstacle.pipe.green.bottom, 'assets/pipe-green-bottom.png')
-        this.load.image(assets.obstacle.pipe.red.top, 'assets/pipe-red-top.png')
-        this.load.image(assets.obstacle.pipe.red.bottom, 'assets/pipe-red-bottom.png')
-
-        // Start game
-        this.load.image(assets.scene.messageInitial, 'assets/message-initial.png')
-
-        // End game
-        this.load.image(assets.scene.gameOver, 'assets/gameover.png')
-        this.load.image(assets.scene.restart, 'assets/restart-button.png')
-
-        // Birds
-        this.load.spritesheet(assets.bird.red, 'assets/bird-red-sprite.png', {
-            frameWidth: 34,
-            frameHeight: 24
-        })
-        this.load.spritesheet(assets.bird.blue, 'assets/bird-blue-sprite.png', {
-            frameWidth: 34,
-            frameHeight: 24
-        })
-        this.load.spritesheet(assets.bird.yellow, 'assets/bird-yellow-sprite.png', {
-            frameWidth: 34,
-            frameHeight: 24
-        })
-
-        // Numbers
-        this.load.image(assets.scoreboard.number0, 'assets/number0.png')
-        this.load.image(assets.scoreboard.number1, 'assets/number1.png')
-        this.load.image(assets.scoreboard.number2, 'assets/number2.png')
-        this.load.image(assets.scoreboard.number3, 'assets/number3.png')
-        this.load.image(assets.scoreboard.number4, 'assets/number4.png')
-        this.load.image(assets.scoreboard.number5, 'assets/number5.png')
-        this.load.image(assets.scoreboard.number6, 'assets/number6.png')
-        this.load.image(assets.scoreboard.number7, 'assets/number7.png')
-        this.load.image(assets.scoreboard.number8, 'assets/number8.png')
-        this.load.image(assets.scoreboard.number9, 'assets/number9.png')
+    function preload () {
+        preloadAssets(this)
     }
 
     function create() {
@@ -270,13 +224,14 @@ const FlappyBirdGame = ({ onGameOver }) => {
     
         prepareGame(this)
     
-        gameOverBanner = this.add.image(assets.scene.width, 206, assets.scene.gameOver)
-        gameOverBanner.setDepth(20)
-        gameOverBanner.visible = false
-    
-        restartButton = this.add.image(assets.scene.width, 300, assets.scene.restart).setInteractive()
-        restartButton.on('pointerdown', restartGame)
-        restartButton.setDepth(20)
+        gameOverBanner = this.add.image(width / 2, height / 2 - 100, assets.scene.gameOver)
+            .setDepth(20)
+            .setVisible(false);
+        
+        restartButton = this.add.image(width / 2, height / 2, assets.scene.restart)
+            .setInteractive()
+            .setDepth(20);
+        restartButton.on('pointerdown', restartGame);
         restartButton.visible = false
     }
 
