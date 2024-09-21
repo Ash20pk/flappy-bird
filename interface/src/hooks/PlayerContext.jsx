@@ -80,6 +80,8 @@ export const PlayerProvider = ({ children }) => {
         query: GET_PLAYER,
         variables: { id: address.toLowerCase() },
       });
+
+      console.log(data)
       
       if (data && data.player) {
         setPlayerStats({
