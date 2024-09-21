@@ -29,7 +29,9 @@ const FlappyBirdGame = ({ onGameOver }) => {
     }
 
     const game = new Phaser.Game(configurations);
-
+    let lastPipePosition = 0;
+    const PIPE_DISTANCE = 300;
+    
     let gameOver;
     let gameStarted;
     let upButton;
@@ -210,7 +212,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         nextPipes++
 
         //this is the distance after which a new pipe is created
-        if (nextPipes === 300) {
+        if (nextPipes === 200) {
             makePipes(game.scene.scenes[0])
             nextPipes = 0
         }
@@ -254,7 +256,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         const { width, height } = scene.sys.game.config;
 
         //this is the distance from birds start to the first pipe
-        const pipeHorizontalDistance = width/2 + 150;
+        const pipeHorizontalDistance = width/2 + 650;
 
         const pipeVerticalGap = 150; 
 
