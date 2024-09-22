@@ -1208,11 +1208,6 @@
         "internalType": "uint256",
         "name": "_score",
         "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_signature",
-        "type": "bytes"
       }
     ],
     "name": "submitScore",

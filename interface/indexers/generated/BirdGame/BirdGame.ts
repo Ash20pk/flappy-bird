@@ -1868,10 +1868,6 @@ export class SubmitScoreCall__Inputs {
   get _score(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
-
-  get _signature(): Bytes {
-    return this._call.inputValues[4].value.toBytes();
-  }
 }
 
 export class SubmitScoreCall__Outputs {

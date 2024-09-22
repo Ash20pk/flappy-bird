@@ -152,6 +152,7 @@ export const PlayerProvider = ({ children }) => {
         });
         setIsRegistered(true);
         setShowRegistrationForm(false);
+        localStorage.setItem('playerStats', JSON.stringify(data));
       } else {
         console.warn("Player not found in subgraph");
         setPlayerStats(null);

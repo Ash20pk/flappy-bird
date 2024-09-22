@@ -18,7 +18,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
             default: 'arcade',
             arcade: {
                 gravity: {y: 300 },
-                debug: true
+                debug: false
             }
         },
         scene: {
@@ -231,7 +231,7 @@ const FlappyBirdGame = ({ onGameOver }) => {
         ground.anims.play(assets.animation.ground.stop)
     
         gameOverBanner.visible = true
-        // restartButton.visible = true
+        restartButton.visible = true
         onGameOver(score); //Handling the end game and resolve the final score to blockchain
     }
 

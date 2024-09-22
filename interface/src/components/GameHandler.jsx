@@ -1,21 +1,31 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import FlappyBirdGame from '../game/FlappyBirdGame';
 import BirdGameABI from '../contracts/BirdGame.json';
+import { useIsLoggedIn } from '@dynamic-labs/sdk-react-core'
 import { PlayerContext } from '../hooks/PlayerContext';
 
 function GameHandler() {
-  const { contractAddress, playerStats, playerAddress } = useContext(PlayerContext);
+  const { contractAddress, playerAddress } = useContext(PlayerContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [playerStats, setPlayerStats] = useState(null);
 
+  const provider = new ethers.BrowserProvider(window.ethereum);
   const privateKey = process.env.VITE_PRIVATE_KEY;
   const wallet = new ethers.Wallet(privateKey);
-  const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = wallet.connect(provider);
+  const isLoggedIn = useIsLoggedIn();
   const contract = new ethers.Contract(contractAddress, BirdGameABI.abi, signer);
 
 
-  console.log(playerStats);
+  useEffect(() => {
+    const playerStats = JSON.parse(localStorage.getItem('playerStats'));
+    if(playerStats){
+      setPlayerStats(playerStats);
+    }
+  },[])
+
+
   const handleGameOver = useCallback(async (finalScore) => {
     try {
       await submitScore(finalScore);
@@ -27,60 +37,29 @@ function GameHandler() {
   }, []);
 
   const submitScore = async (finalScore) => {
-    if (!signer || !playerStats) {
-      console.error("Signer not available or player has no birds");
+    if (!playerStats) {
+      console.error("Player has no birds");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const birdId = playerStats.tokenOfOwnerByIndex[0];
-      const gameId = await contract.currentGameId();
-      const chainId = 421614;
-  
 
-      // Prepare the data for signing
-      const domain = {
-        name: "BirdGame",
-        version: "1",
-        chainId: chainId,
-        verifyingContract: contractAddress
-      };
+      const birdId = playerStats.player.tokenOfOwnerByIndex[0];
+      const gameId = await contract.currentGameId().toString();
 
-      const types = {
-        SubmitScore: [
-          { name: "birdId", type: "uint256" },
-          { name: "gameId", type: "uint256" },
-          {name: "playerAddress", type: "address"},
-          { name: "score", type: "uint256" }
-        ]
-      };
-
-      const value = {
-        birdId: birdId.toString(),
-        gameId: gameId.toString(),
-        playerAddress: playerAddress.toString(),
-        score: finalScore.toString()
-      };
-
-      console.log("Value object:", value);
-
-      // Sign the typed data
-      const signature = await signer.signTypedData(domain, types, value);
-      const { v, r, s } = ethers.Signature.from(signature);
-
-      // Submit the score
-      const tx = await contract.submitScore(
-        birdId.toString(),
-        gameId.toString(),
-        playerAddress.toString(),
-        finalScore.toString(),
-        v,
-        r,
-        s
+      console.log('contract ====> ', contract);
+     console.log('birdId', birdId);
+     console.log('gameId', gameId);
+     console.log('playerAddress', playerAddress);
+     console.log('finalScore', finalScore);
+      const tx = await contract.submitScore(birdId, gameId, playerAddress, finalScore
       );
+
+
       await tx.wait();
-      localStorage.removeItem(`selectedNFT`)
+      console.log("Score submitted successfully. Transaction hash:", tx.hash);
+      localStorage.removeItem(`selectedNFT`);
 
     } catch (error) {
       console.error("Error in submitScore:", error);

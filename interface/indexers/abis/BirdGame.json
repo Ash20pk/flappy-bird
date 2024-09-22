@@ -746,8 +746,7 @@
       { "internalType": "uint256", "name": "_birdId", "type": "uint256" },
       { "internalType": "uint256", "name": "_gameId", "type": "uint256" },
       { "internalType": "address", "name": "playerAddress", "type": "address" },
-      { "internalType": "uint256", "name": "_score", "type": "uint256" },
-      { "internalType": "bytes", "name": "_signature", "type": "bytes" }
+      { "internalType": "uint256", "name": "_score", "type": "uint256" }
     ],
     "name": "submitScore",
     "outputs": [],

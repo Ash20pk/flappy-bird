@@ -35,18 +35,28 @@ const Spritesheet = ({ src, frameWidth, frameHeight, frameCount, fps, staticFram
 };
 
 const Dashboard = () => {
-  const {disconnectWallet, loading, playerStats, nftSpritesheets} = useContext(PlayerContext);
+  const {disconnectWallet, loading, nftSpritesheets} = useContext(PlayerContext);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedNFT, setSelectedNFT] = useState(null);
   const isLoggedIn = useIsLoggedIn();
   const navigate = useNavigate();
+  const [playerStats, setPlayerStats] = useState(null);
 
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/');
       disconnectWallet();
+      setPlayerStats(null);
     }
   }, [isLoggedIn, navigate, disconnectWallet]);
+
+  
+  useEffect(() => {
+    const playerStats = JSON.parse(localStorage.getItem('playerStats'));
+    if(playerStats){
+      setPlayerStats(playerStats);
+    }
+  }, [isLoggedIn])
 
   useEffect(() => {
     if (nftSpritesheets.length > 0) {
@@ -127,15 +137,15 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 gap-6 mb-8">
                 <div className="bg-white rounded-lg p-4 text-center shadow transform hover:scale-105 transition-transform duration-200">
                   <p className="text-3xl font-bold text-yellow-500 flappy-font">High Score</p>
-                  <p className="text-5xl font-bold text-yellow-600 flappy-font">{playerStats.highScore}</p>
+                  <p className="text-5xl font-bold text-yellow-600 flappy-font">{playerStats.player?.highScore}</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center shadow transform hover:scale-105 transition-transform duration-200">
                   <p className="text-3xl font-bold text-green-500 flappy-font">XP</p>
-                  <p className="text-5xl font-bold text-green-600 flappy-font">{playerStats.xp}</p>
+                  <p className="text-5xl font-bold text-green-600 flappy-font">{playerStats.player?.xp}</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 text-center shadow transform hover:scale-105 transition-transform duration-200">
                   <p className="text-3xl font-bold text-red-500 flappy-font">Level</p>
-                  <p className="text-5xl font-bold text-red-600 flappy-font">{playerStats.level}</p>
+                  <p className="text-5xl font-bold text-red-600 flappy-font">{playerStats.player?.level}</p>
                 </div>
               </div>
             )}
